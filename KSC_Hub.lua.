@@ -40,4 +40,37 @@ FlingButton.Text = "Fling All"
 local SpeedInput = Instance.new("TextBox")
 SpeedInput.Parent = Frame
 SpeedInput.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-Speed
+SpeedInput.Position = UDim2.new(0.5, -50, 0.5, 0)
+SpeedInput.Size = UDim2.new(0, 100, 0, 50)
+SpeedInput.PlaceholderText = "Speed"
+SpeedInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+-- Função para ativar o ESP
+EspButton.MouseButton1Click:Connect(function()
+    print("ESP Players button clicked")
+    -- Aqui você deve implementar a lógica para ESP
+    -- Por exemplo, destacar jogadores com uma marcação
+end)
+
+-- Função para ativar o Fling
+FlingButton.MouseButton1Click:Connect(function()
+    print("Fling All button clicked")
+    -- Aqui você deve implementar a lógica para flings
+    -- Por exemplo, lançar todos os jogadores para longe
+end)
+
+-- Função para ajustar a velocidade do jogador
+SpeedInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local speedValue = tonumber(SpeedInput.Text)
+        if speedValue and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.WalkSpeed = speedValue
+            print("Player speed set to: " .. speedValue)
+        else
+            print("Invalid speed value or Humanoid not found")
+        end
+    end
+end)
+
+-- Finaliza a configuração do Frame
+Frame.Parent = ScreenGui
