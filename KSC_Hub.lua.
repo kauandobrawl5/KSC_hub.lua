@@ -1,0 +1,131 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "KSC_Hub"
+ScreenGui.Parent = PlayerGui
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Cor verde
+Frame.Position = UDim2.new(0.5, -100, 0.5, -150)
+Frame.Size = UDim2.new(0, 200, 0, 400)
+Frame.Active = true -- Permitir interação com o Frame
+Frame.Draggable = true -- Permitir mover o Frame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = Frame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Size = UDim2.new(1, 0, 0, 30)
+TitleLabel.Position = UDim2.new(0, 0, 0, 5)
+TitleLabel.Text = "KSC Hub"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 0, 0) 
+TitleLabel.TextScaled = true
+
+local EspButton = Instance.new("TextButton")
+EspButton.Parent = Frame
+EspButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+EspButton.Position = UDim2.new(0.5, -50, 0.1, 0)
+EspButton.Size = UDim2.new(0, 100, 0, 50)
+EspButton.Text = "ESP Players"
+
+local FlingButton = Instance.new("TextButton")
+FlingButton.Parent = Frame
+FlingButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+FlingButton.Position = UDim2.new(0.5, -50, 0.3, 0)
+FlingButton.Size = UDim2.new(0, 100, 0, 50)
+FlingButton.Text = "Fling All"
+
+local SpeedInput = Instance.new("TextBox")
+SpeedInput.Parent = Frame
+SpeedInput.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+SpeedInput.Position = UDim2.new(0.5, -50, 0.5, 0)
+SpeedInput.Size = UDim2.new(0, 100, 0, 50)
+SpeedInput.PlaceholderText = "Speed"
+SpeedInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+local JumpHeightInput = Instance.new("TextBox")
+JumpHeightInput.Parent = Frame
+JumpHeightInput.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+JumpHeightInput.Position = UDim2.new(0.5, -50, 0.7, 0)
+JumpHeightInput.Size = UDim2.new(0, 100, 0, 50)
+JumpHeightInput.PlaceholderText = "Jump Height"
+JumpHeightInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+-- Função para ativar o ESP
+local function createESP(player)
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = player.Character
+        highlight.Adornee = player.Character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Cor do ESP
+        highlight.FillTransparency = 0.5 -- Semi-transparente
+        highlight.Name = "ESPHighlight" -- Nome para identificar o highlight
+    end
+end
+
+-- Remove qualquer ESP existente antes de adicionar um novo
+local function removeESP(player)
+    if player.Character then
+        local highlight = player.Character:FindFirstChild("ESPHighlight")
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+end
+
+EspButton.MouseButton1Click:Connect(function()
+    print("ESP Players button clicked")
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            removeESP(player) -- Remove o ESP existente
+            createESP(player) -- Cria o ESP novo
+        end
+    end
+end)
+
+-- Função para ativar o Fling
+local function flingAllPlayers()
+    print("Fling All button clicked")
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.Velocity = Vector3.new(math.random(-50, 50), 50, math.random(-50, 50)) -- Direção aleatória, limite reduzido
+            bodyVelocity.MaxForce = Vector3.new(1000, 1000, 1000) -- Força máxima reduzida
+            bodyVelocity.Parent = player.Character.HumanoidRootPart
+            game:GetService("Debris"):AddItem(bodyVelocity, 0.1) -- Limpar após 0.1 segundos
+        end
+    end
+end
+
+FlingButton.MouseButton1Click:Connect(flingAllPlayers)
+
+-- Função para ajustar a velocidade do jogador
+SpeedInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local speedValue = tonumber(SpeedInput.Text)
+        if speedValue and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.WalkSpeed = speedValue
+            print("Player speed set to: " .. speedValue)
+        else
+            print("Invalid speed value or Humanoid not found")
+        end
+    end
+end)
+
+-- Função para ajustar a altura do salto do jogador
+JumpHeightInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local jumpHeightValue = tonumber(JumpHeightInput.Text)
+        if jumpHeightValue and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.JumpPower = jumpHeightValue
+            print("Player jump height set to: " .. jumpHeightValue)
+        else
+            print("Invalid jump height value or Humanoid not found")
+        end
+    end
+end)
+
+-- Finaliza a configuração do Frame
+Frame.Parent = ScreenGui
